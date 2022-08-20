@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0px;
+        padding: 0px;
+        background-color: rgb(247, 243, 243);
+    }
+
+    .con {
+        width: 1600px;
+        margin: 0 auto;
+        /* background-color: aquamarine; */
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 50px;
+
+    }
+
+    .card {
+        width: 250px;
+        height: 400px;
+        background-color: rgb(212, 168, 194);
+        border-radius: 20px;
+
+    }
+
+    img {
+        width: 100%;
+        height: 50%;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px
+    }
+
+    h1,
+    p {
+        text-align: center;
+    }
+
+    .btn {
+        width: 15%;
+        height: 50px;
+        background-color: burlywood;
+        /* justify-content:space-around */
+
+
+    }
+
+    .north {
+        width: 15%;
+        height: 50px;
+        line-height: 50px;
+
+        background-color: rgb(109, 109, 150);
+    }
+
+    .west {
+        width: 15%;
+        height: 50px;
+        background-color: rgb(109, 109, 150);
+        margin-left: 20px;
+        line-height: 50px;
+        
+    }
+    .east{
+        width: 15%;
+        height: 50px;
+        background-color: rgb(109, 109, 150);
+        margin-left: 20px;
+        line-height: 50px;
+
+    }
+    .south{
+        width: 15%;
+        height: 50px;
+        background-color: rgb(109, 109, 150);
+        margin-left: 20px;
+        line-height: 50px;
+
+    }
+    .eax{
+        width: 15%;
+        height: 50px;
+        background-color: rgb(109, 109, 150);
+        margin-left: 20px;
+        line-height: 50px;
+
+    }
+
+    nav {
+        display: flex;
+        background-color: rgb(247, 243, 243);
+
+        justify-content: center;
+        text-align: center;
+        padding-top: 20px;
+        font-size: 30px;
+    }
+</style>
+
+<body>
+    <nav>
+        <div class="btn north" onclick="filter('北')">北部</div>
+        <div class="btn west" onclick="filter('西')">西部</div>
+        <div class="btn east" onclick="filter('東')">東部</div>
+        <div class="btn south" onclick="filter('南')">南部</div>
+        <div class="btn eax" onclick="filter('離島')">離島</div>
+
+        <!-- <div class="btn all" onclick="">全部</div> -->
+    </nav>
+    <div class="con">
+        <!-- <img src="../img3/下載.jfif" alt=""> -->
+        <!-- <div class="card">
+            <img src="../img3/下載.jfif" alt="">
+            <h1>縣市</h1>
+            <p>溫度</p>
+            <p>天氣概述</p> -->
+        <!-- <img src="../img3/下載.jfif" alt=""> -->
+    </div>
+    </div>
+</body>
+<script>
+
+    const areaObj = {
+        '北': ['新北市', '新竹縣', '新竹市', '台北市', '宜蘭縣', '桃園市', '基隆市'],
+        '西': ['苗栗縣', '雲林縣', '臺中市', '南投縣', '彰化縣'],
+        '東': ['花蓮縣', '臺東縣'],
+        '南': ['嘉義縣', '嘉義市', '臺南市', '高雄市', '屏東縣'],
+        '離島': ['金門縣', '澎湖縣', '連江縣'],
+    }
+    var array = []
+    var con = document.querySelector('.con')
+
+    filter()
+
+    function filter(area) {
+        con.innerHTML = ''
+        //決定指定的區域有哪些縣市
+        const areaArray = areaObj[area]
+
+        fetch('https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWB-180CCDC9-63DB-417B-A02C-6C278EB53385')
+            .then(function (response) {
+                return response.json()
+            })
+            .then(function (data) {
+                const allArea = data.records.location
+                const filterArea = (area) ? allArea.filter(area => areaArray.includes(area.locationName)) : allArea
+                console.log(filterArea);
+
+                filterArea.forEach(areaObj => {
+                    // locationName
+                    // weatherElement
+                    //console.log(areaObj);
+                    //缺少 多雲時晴
+                    const _area = areaObj.locationName
+                    const maxTemp = areaObj.weatherElement[4].time[0].parameter.parameterName
+                    const minTemp = areaObj.weatherElement[2].time[0].parameter.parameterName
+                    const weatherStatus = areaObj.weatherElement[0].time[0].parameter.parameterName
+                    const weatherImg = './images/' + weatherStatus + '.png'
+
+                    console.log(`地區: ${_area}, 天氣狀況: ${weatherStatus}, 
+                                    最高溫: ${maxTemp}, 最低溫: ${minTemp}, 引用的圖片路徑: ${weatherImg}`);
+
+                    con.innerHTML += `
+                        <div class="card">
+                            <img src="${weatherImg}" alt="">
+                            <h1>${_area}</h1>
+                            <p>${minTemp}～${maxTemp}°C</p>
+                            <p>天氣: ${weatherStatus}</p>
+                        </div>`
+                })
+            })
+    }
+
+</script>
+
+</html>
